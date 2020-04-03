@@ -7,7 +7,7 @@ The assignments include both theoretical and coding problems
 **Python 3**
 
 ## Assignment 1
-Working with syntax- and dependenciy trees. Note that only the methods valid_moves, 
+Working with syntax- and dependency trees. Note that only the methods valid_moves, 
 move and compute_correct_move in DepParser skeleton were modified.
 
 
