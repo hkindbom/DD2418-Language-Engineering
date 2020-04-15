@@ -64,6 +64,21 @@ class Generator(object) :
         try:
             with codecs.open(filename, 'r', 'utf-8') as f:
                 self.unique_words, self.total_words = map(int, f.readline().strip().split(' '))
+
+                # parsing language model
+                lines = f.readlines()
+                for line in lines[:self.unique_words]:
+                    line = line.strip().split(' ')
+                    self.word[line[0]] = line[1]
+                    self.index[line[1]] = int(line[0])
+                    self.unigram_count[line[1]] = int(line[2])
+
+                for line in lines[self.unique_words:len(lines)-1]:
+                    line = line.strip().split(' ')
+                    bigram_1 = self.word[line[0]]
+                    bigram_2 = self.word[line[1]]
+                    self.bigram_prob[bigram_1][bigram_2] = float(line[2])
+
                 # REUSE YOUR CODE FROM BigramTester.py here
                 return True
         except IOError:
@@ -76,7 +91,31 @@ class Generator(object) :
         of the language model.
         """ 
         # YOUR CODE HERE
-        pass
+        w = w.lower()
+        print(w)
+
+        for word in range(n):
+            w = self.get_next_word(w)
+            print(w)
+
+
+    def get_next_word(self,w):
+        bigrams = self.bigram_prob[w]
+        pos_next_word = list(bigrams.keys())
+        next_word_logprob = list(bigrams.values())
+        next_word_probs = list(map(lambda x: math.exp(x), next_word_logprob))
+
+        # generate next word with uniform dist if current word doesnt exist in vocab
+        # or bigram has very low prob
+        if not bigrams or max(next_word_probs) < 0.000000000001:
+            return self.get_random_word()
+
+        next_word_choice = random.choices(pos_next_word, next_word_probs)[0]
+        return next_word_choice
+
+    def get_random_word(self):
+        random_word = random.choice(list(self.unigram_count.keys()))
+        return random_word
 
 
 def main():
