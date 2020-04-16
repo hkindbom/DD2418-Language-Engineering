@@ -69,14 +69,14 @@ class Generator(object) :
                 lines = f.readlines()
                 for line in lines[:self.unique_words]:
                     line = line.strip().split(' ')
-                    self.word[line[0]] = line[1]
+                    self.word[int(line[0])] = line[1]
                     self.index[line[1]] = int(line[0])
                     self.unigram_count[line[1]] = int(line[2])
 
-                for line in lines[self.unique_words:len(lines)-1]:
+                for line in lines[self.unique_words:len(lines) - 1]:
                     line = line.strip().split(' ')
-                    bigram_1 = self.word[line[0]]
-                    bigram_2 = self.word[line[1]]
+                    bigram_1 = self.word[int(line[0])]
+                    bigram_2 = self.word[int(line[1])]
                     self.bigram_prob[bigram_1][bigram_2] = float(line[2])
 
                 # REUSE YOUR CODE FROM BigramTester.py here
