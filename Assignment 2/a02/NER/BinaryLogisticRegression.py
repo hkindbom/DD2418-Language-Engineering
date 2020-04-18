@@ -30,7 +30,7 @@ class BinaryLogisticRegression(object):
         self.LEARNING_RATE = 0.01  # The learning rate.
         self.CONVERGENCE_MARGIN = 0.01  # The convergence criterion.
         self.MAX_ITERATIONS = 10  # Maximal number of passes through the datapoints in stochastic gradient descent.
-        self.MINIBATCH_SIZE = 5000  # Minibatch size (only for minibatch gradient descent)
+        self.MINIBATCH_SIZE = 50  # Minibatch size (only for minibatch gradient descent)
 
         # ----------------------------------------------------------------------
 
@@ -151,13 +151,13 @@ class BinaryLogisticRegression(object):
 
             self.compute_gradient(datapoint)
             self.upd_theta()
+            print('theta: ', self.theta)
 
             # plot every 50th iteration
             if not self.training_iteration % 50:
                 self.update_plot(np.sum(np.square(self.gradient)))
 
             self.training_iteration += 1
-
 
 
     def minibatch_fit(self):
@@ -167,12 +167,19 @@ class BinaryLogisticRegression(object):
         self.init_plot(self.FEATURES)
 
         # YOUR CODE HERE
+        max_batch_nr = self.DATAPOINTS // self.MINIBATCH_SIZE
+        batch_nr = 1
 
-        for minibatch in range(self.DATAPOINTS // self.MINIBATCH_SIZE):
-            print('Processing batch nr: ', minibatch+1)
-            self.compute_gradient_minibatch(minibatch+1)
-            print('loss:',np.sum(np.square(self.gradient)))
+        while not self.converged() or self.training_iteration == 0:
+            print('Processing batch nr: ', batch_nr)
+            self.compute_gradient_minibatch(batch_nr)
+            self.upd_theta()
             self.update_plot(np.sum(np.square(self.gradient)))
+
+            batch_nr += 1
+            # start over on first batch if processed all data
+            batch_nr = batch_nr % max_batch_nr
+            self.training_iteration += 1
 
 
     def fit(self):
@@ -182,7 +189,6 @@ class BinaryLogisticRegression(object):
         self.init_plot(self.FEATURES)
 
         # YOUR CODE HERE
-        print('fitting subset of data')
 
         while not self.converged() or self.training_iteration == 0:
             print('Iteration: ', self.training_iteration)
@@ -190,8 +196,8 @@ class BinaryLogisticRegression(object):
             self.compute_gradient_for_all()
             self.upd_theta()
 
-            # plot every 5th iteration
-            if not self.training_iteration % 5:
+            # plot every iteration
+            if not self.training_iteration % 1:
                 self.update_plot(np.sum(np.square(self.gradient)))
 
             self.training_iteration += 1
@@ -209,6 +215,7 @@ class BinaryLogisticRegression(object):
         # sum of squares of the gradient[k] is smaller than CONVERGENCE_MARGIN
 
         sum_of_squares = np.sum(np.square(self.gradient))
+        print('sum_of_squares: ', sum_of_squares)
 
         if sum_of_squares < self.CONVERGENCE_MARGIN:
             return True
@@ -231,12 +238,20 @@ class BinaryLogisticRegression(object):
 
         for d in range(self.DATAPOINTS):
             prob = self.conditional_prob(1, d)
+            print(prob)
             predicted = 1 if prob > .5 else 0
             confusion[predicted][self.y[d]] += 1
 
         accuracy = (confusion[0][0] + confusion[1][1]) / np.sum(confusion)
 
+        # precision = TP /(TP + FP)
+        precision = confusion[1][1] / (confusion[1][1] + confusion[1][0])
+        # recall = TP / (TP + FN)
+        recall = confusion[1][1] / (confusion[1][1] + confusion[0][1])
+
         print('Accuracy = ', accuracy)
+        print('precision = ', precision)
+        print('recall = ', recall)
         print('                       Real class')
         print('                 ', end='')
         print(' '.join('{:>8d}'.format(i) for i in range(2)))
