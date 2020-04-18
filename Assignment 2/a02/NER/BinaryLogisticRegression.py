@@ -15,15 +15,6 @@ class BinaryLogisticRegression(object):
     or stochastic gradient descent
     """
 
-    #  ------------- Hyperparameters ------------------ #
-
-    LEARNING_RATE = 0.01  # The learning rate.
-    CONVERGENCE_MARGIN = 0.001  # The convergence criterion.
-    MAX_ITERATIONS = 100 # Maximal number of passes through the datapoints in stochastic gradient descent.
-    MINIBATCH_SIZE = 1000 # Minibatch size (only for minibatch gradient descent)
-
-    # ----------------------------------------------------------------------
-
 
     def __init__(self, x=None, y=None, theta=None):
         """
@@ -33,6 +24,16 @@ class BinaryLogisticRegression(object):
         @param y The labels as a DATAPOINT array.
         @param theta A ready-made model. (instead of x and y)
         """
+
+        #  ------------- Hyperparameters ------------------ #
+
+        self.LEARNING_RATE = 0.01  # The learning rate.
+        self.CONVERGENCE_MARGIN = 0.01  # The convergence criterion.
+        self.MAX_ITERATIONS = 10  # Maximal number of passes through the datapoints in stochastic gradient descent.
+        self.MINIBATCH_SIZE = 5000  # Minibatch size (only for minibatch gradient descent)
+
+        # ----------------------------------------------------------------------
+
         if not any([x, y, theta]) or all([x, y, theta]):
             raise Exception('You have to either give x and y or theta')
 
@@ -59,6 +60,7 @@ class BinaryLogisticRegression(object):
             # The current gradient.
             self.gradient = np.zeros(self.FEATURES)
 
+            self.training_iteration = 0
 
 
     # ----------------------------------------------------------------------
@@ -77,8 +79,16 @@ class BinaryLogisticRegression(object):
         """
 
         # REPLACE THE COMMAND BELOW WITH YOUR CODE
+        feat_vec = self.x[datapoint]
 
-        return 0
+        if label == 1:
+            return self.conditional_prob_1(feat_vec)
+
+        return 1 - self.conditional_prob_1(feat_vec)
+
+    def conditional_prob_1(self, feat_vec):
+
+        return self.sigmoid(np.dot(self.theta, feat_vec))
 
 
     def compute_gradient_for_all(self):
@@ -88,6 +98,19 @@ class BinaryLogisticRegression(object):
         """
 
         # YOUR CODE HERE
+        self.compute_gradient_for_subset(0, self.DATAPOINTS)
+
+    def compute_gradient_for_subset(self, start_point, end_point):
+        for feature in range(self.FEATURES):
+            new_gradient = 0
+            for datapoint in range(start_point, end_point):
+                new_gradient += self.compute_feat_gradient(datapoint, feature) / (end_point-start_point)
+
+            self.gradient[feature] = new_gradient
+
+    def compute_feat_gradient(self, datapoint, feature):
+        return self.x[datapoint][feature] * (
+                self.conditional_prob_1(self.x[datapoint]) - self.y[datapoint])
 
 
     def compute_gradient_minibatch(self, minibatch):
@@ -97,6 +120,10 @@ class BinaryLogisticRegression(object):
         """
         
         # YOUR CODE HERE
+        start_point = (minibatch-1) * self.MINIBATCH_SIZE
+        end_point = minibatch * self.MINIBATCH_SIZE
+
+        self.compute_gradient_for_subset(start_point, end_point)
 
 
     def compute_gradient(self, datapoint):
@@ -106,6 +133,8 @@ class BinaryLogisticRegression(object):
         """
 
         # YOUR CODE HERE
+        for feature in range(self.FEATURES):
+            self.gradient[feature] = self.compute_feat_gradient(datapoint, feature)
 
 
     def stochastic_fit(self):
@@ -116,6 +145,20 @@ class BinaryLogisticRegression(object):
 
         # YOUR CODE HERE
 
+        while self.training_iteration == 0 or (self.training_iteration < self.MAX_ITERATIONS*self.DATAPOINTS and not self.converged()):
+            print('Iteration: ', self.training_iteration)
+            datapoint = np.random.randint(0, self.DATAPOINTS)
+
+            self.compute_gradient(datapoint)
+            self.upd_theta()
+
+            # plot every 50th iteration
+            if not self.training_iteration % 50:
+                self.update_plot(np.sum(np.square(self.gradient)))
+
+            self.training_iteration += 1
+
+
 
     def minibatch_fit(self):
         """
@@ -125,6 +168,12 @@ class BinaryLogisticRegression(object):
 
         # YOUR CODE HERE
 
+        for minibatch in range(self.DATAPOINTS // self.MINIBATCH_SIZE):
+            print('Processing batch nr: ', minibatch+1)
+            self.compute_gradient_minibatch(minibatch+1)
+            print('loss:',np.sum(np.square(self.gradient)))
+            self.update_plot(np.sum(np.square(self.gradient)))
+
 
     def fit(self):
         """
@@ -133,6 +182,37 @@ class BinaryLogisticRegression(object):
         self.init_plot(self.FEATURES)
 
         # YOUR CODE HERE
+        print('fitting subset of data')
+
+        while not self.converged() or self.training_iteration == 0:
+            print('Iteration: ', self.training_iteration)
+
+            self.compute_gradient_for_all()
+            self.upd_theta()
+
+            # plot every 5th iteration
+            if not self.training_iteration % 5:
+                self.update_plot(np.sum(np.square(self.gradient)))
+
+            self.training_iteration += 1
+
+    def upd_theta(self):
+        for k in range(self.FEATURES):
+            self.upd_feat_theta(k)
+
+    def upd_feat_theta(self, feature):
+
+        self.theta[feature] = self.theta[feature] - self.LEARNING_RATE * self.gradient[feature]
+
+    def converged(self):
+        # Convergence = the gradient is close to the zero vector = the
+        # sum of squares of the gradient[k] is smaller than CONVERGENCE_MARGIN
+
+        sum_of_squares = np.sum(np.square(self.gradient))
+
+        if sum_of_squares < self.CONVERGENCE_MARGIN:
+            return True
+        return False
 
 
     def classify_datapoints(self, test_data, test_labels):
@@ -154,6 +234,9 @@ class BinaryLogisticRegression(object):
             predicted = 1 if prob > .5 else 0
             confusion[predicted][self.y[d]] += 1
 
+        accuracy = (confusion[0][0] + confusion[1][1]) / np.sum(confusion)
+
+        print('Accuracy = ', accuracy)
         print('                       Real class')
         print('                 ', end='')
         print(' '.join('{:>8d}'.format(i) for i in range(2)))
