@@ -55,6 +55,9 @@ class NER(object):
     def first_token_in_sentence(self):
            return self.last_token in [None, '.', '!', '?']
 
+    def capitalized_not_first_token(self):
+        return self.capitalized_token() and not self.first_token_in_sentence()
+
     class FeatureFunction(object):
         def __init__(self, func):
             self.func = func
@@ -130,6 +133,7 @@ class NER(object):
         self.features = [
             NER.FeatureFunction(self.capitalized_token),
             NER.FeatureFunction(self.first_token_in_sentence),
+            NER.FeatureFunction(self.capitalized_not_first_token),
         ]
 
         if training_file:

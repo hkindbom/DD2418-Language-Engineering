@@ -27,8 +27,8 @@ class BinaryLogisticRegression(object):
 
         #  ------------- Hyperparameters ------------------ #
 
-        self.LEARNING_RATE = 0.01  # The learning rate.
-        self.CONVERGENCE_MARGIN = 0.01  # The convergence criterion.
+        self.LEARNING_RATE = 0.05  # The learning rate.
+        self.CONVERGENCE_MARGIN = 0.02  # The convergence criterion.
         self.MAX_ITERATIONS = 10  # Maximal number of passes through the datapoints in stochastic gradient descent.
         self.MINIBATCH_SIZE = 50  # Minibatch size (only for minibatch gradient descent)
 
@@ -151,7 +151,6 @@ class BinaryLogisticRegression(object):
 
             self.compute_gradient(datapoint)
             self.upd_theta()
-            print('theta: ', self.theta)
 
             # plot every 50th iteration
             if not self.training_iteration % 50:
@@ -195,10 +194,7 @@ class BinaryLogisticRegression(object):
 
             self.compute_gradient_for_all()
             self.upd_theta()
-
-            # plot every iteration
-            if not self.training_iteration % 1:
-                self.update_plot(np.sum(np.square(self.gradient)))
+            self.update_plot(np.sum(np.square(self.gradient)))
 
             self.training_iteration += 1
 
@@ -208,7 +204,7 @@ class BinaryLogisticRegression(object):
 
     def upd_feat_theta(self, feature):
 
-        self.theta[feature] = self.theta[feature] - self.LEARNING_RATE * self.gradient[feature]
+        self.theta[feature] -= self.LEARNING_RATE * self.gradient[feature]
 
     def converged(self):
         # Convergence = the gradient is close to the zero vector = the
@@ -238,7 +234,6 @@ class BinaryLogisticRegression(object):
 
         for d in range(self.DATAPOINTS):
             prob = self.conditional_prob(1, d)
-            print(prob)
             predicted = 1 if prob > .5 else 0
             confusion[predicted][self.y[d]] += 1
 
@@ -248,6 +243,7 @@ class BinaryLogisticRegression(object):
         precision = confusion[1][1] / (confusion[1][1] + confusion[1][0])
         # recall = TP / (TP + FN)
         recall = confusion[1][1] / (confusion[1][1] + confusion[0][1])
+
 
         print('Accuracy = ', accuracy)
         print('precision = ', precision)
