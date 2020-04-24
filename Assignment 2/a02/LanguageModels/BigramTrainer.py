@@ -87,7 +87,7 @@ class BigramTrainer(object):
             for bigram_2 in self.bigram_count[bigram_1]:
                 bigram_count = self.bigram_count[bigram_1][bigram_2]
                 bigram_prob = bigram_count / self.unigram_count[bigram_1]
-                bigram_logprob = math.log(bigram_prob)
+                bigram_logprob = "%.15f" % round(math.log(bigram_prob), 15)
                 bigram_1_id = self.index[bigram_1]
                 bigram_2_id = self.index[bigram_2]
                 rows_to_print.append(str(bigram_1_id) + ' ' + str(bigram_2_id) + ' ' + str(bigram_logprob))

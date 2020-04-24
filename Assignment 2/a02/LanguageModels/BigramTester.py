@@ -97,7 +97,7 @@ class BigramTester(object):
         else:
             p1 = 0
 
-        # get unigram prob if word exist in trining corpus
+        # get unigram prob if word exist in training corpus
         if word in self.unigram_count:
             p2 = self.unigram_count[word]/self.total_words
             self.last_index = self.index[word]
@@ -108,8 +108,10 @@ class BigramTester(object):
 
         self.logProb -= math.log(self.lambda1*p1 + self.lambda2*p2 + self.lambda3)/nr_test_tokens
 
-        # guardian_test.txt entropy = 6.62 (correct)
-        # austen_test.txt entropy = 5.72 (correct)
+        # guardian on guardian_test.txt entropy = 6.62 (correct)
+        # guardian on austen entoropy 6.40 (correct)
+        # austen on austen_test.txt entropy = 5.72 (correct)
+        # austen on guardian entropy = 9.75 (correct)
         # "The lower the entropy of the test corpus, the better the
         # language model learned from the training corpus."
         # conclusions: One may argue that the entropy of guardian should be lower than

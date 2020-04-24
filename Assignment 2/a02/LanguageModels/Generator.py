@@ -79,6 +79,7 @@ class Generator(object) :
                     bigram_2 = self.word[int(line[1])]
                     self.bigram_prob[bigram_1][bigram_2] = float(line[2])
 
+
                 # REUSE YOUR CODE FROM BigramTester.py here
                 return True
         except IOError:
