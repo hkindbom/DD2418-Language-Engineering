@@ -158,21 +158,6 @@ class BinaryLogisticRegression(object):
 
             self.training_iteration += 1
 
-        # WITH and without extra feature
-        # Accuracy =  0.9587891757835156
-        # precision 1 =  0.9319922630560928
-        # precision 0 =  0.9627668737725816
-        # recall 1 =  0.7879382522239665
-        # recall 0 =  0.9896234210836973
-        #                        Real class
-        #                         0        1
-        # Predicted class:  0 83831.000 3242.000
-        #                   1  879.000 12046.000
-        # self.LEARNING_RATE = 0.01  # The learning rate.
-        # self.CONVERGENCE_MARGIN = 0.02  # The convergence criterion.
-        # self.MAX_ITERATIONS = 1 # Maximal number of passes through the datapoints in stochastic gradient descent.
-        # self.MINIBATCH_SIZE = 1000
-
 
     def minibatch_fit(self):
         """
@@ -195,22 +180,6 @@ class BinaryLogisticRegression(object):
             batch_nr = batch_nr % max_batch_nr
             self.training_iteration += 1
 
-    # WITH and without extra feature
-    # Accuracy =  0.9587891757835156
-    # precision 1 =  0.9319922630560928
-    # precision 0 =  0.9627668737725816
-    # recall 1 =  0.7879382522239665
-    # recall 0 =  0.9896234210836973
-    #                        Real class
-    #                         0        1
-    # Predicted class:  0 83831.000 3242.000
-    #                   1  879.000 12046.000
-    # self.LEARNING_RATE = 0.01  # The learning rate.
-    # self.CONVERGENCE_MARGIN = 0.001  # The convergence criterion.
-    # self.MAX_ITERATIONS = 10  # Maximal number of passes through the datapoints in stochastic gradient descent.
-    # self.MINIBATCH_SIZE = 1000
-
-
     def fit(self):
         """
         Performs Batch Gradient Descent
@@ -227,20 +196,6 @@ class BinaryLogisticRegression(object):
             self.update_plot(np.sum(np.square(self.gradient)))
 
             self.training_iteration += 1
-    # WITH and without extra feature
-    # Accuracy =  0.9587891757835156
-    # precision 1 =  0.9319922630560928
-    # precision 0 =  0.9627668737725816
-    # recall 1 =  0.7879382522239665
-    # recall 0 =  0.9896234210836973
-    #                        Real class
-    #                         0        1
-    # Predicted class:  0 83831.000 3242.000
-    #                   1  879.000 12046.000
-    # self.LEARNING_RATE = 0.01  # The learning rate.
-    # self.CONVERGENCE_MARGIN = 0.02  # The convergence criterion.
-    # self.MAX_ITERATIONS = 10  # Maximal number of passes through the datapoints in stochastic gradient descent.
-    # self.MINIBATCH_SIZE = 1000
 
     def upd_theta(self):
         for k in range(self.FEATURES):
