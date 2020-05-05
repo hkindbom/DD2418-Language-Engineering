@@ -61,6 +61,8 @@ class RandomIndexing(object):
         self.__rws = right_window_size
         self.__cv = None
         self.__rv = None
+        self.__nn_model = None
+        self.__index_to_word = {}
         
 
     ##
@@ -268,7 +270,50 @@ class RandomIndexing(object):
     ##
     def find_nearest(self, words, k=5, metric='cosine'):
         # YOUR CODE HERE
-        return [None]
+
+        # Create nearest neighbour model if not exists already
+        if self.__nn_model is None:
+            # look on parameters
+            self.__nn_model = NearestNeighbors(k, metric = metric)
+            all_cvs = self.get_all_cvs()
+            self.__nn_model.fit(all_cvs)
+
+        query_vecs = self.get_query_vecs(words)
+
+        distances, word_indices = self.__nn_model.kneighbors(query_vecs)
+        formated_nn = self.format_nearest_neighbours(distances, word_indices)
+
+        return formated_nn
+
+    def format_nearest_neighbours(self, distances, word_indices):
+        formated_nn = []
+        for distance_list, word_index_list in zip(distances, word_indices):
+            nn_data = []
+            for distance, word_index in zip(distance_list, word_index_list):
+                nn_word = self.__index_to_word[word_index]
+                nn_data.append((nn_word, round(distance, 3)))
+            # Sort nearest neighbour list in descending similarity order
+            nn_data.sort(key=lambda x: x[1])
+            formated_nn.append(nn_data)
+
+        return formated_nn
+
+    def get_all_cvs(self):
+        nr_word_vecs = len(self.__cv)
+        all_cvs = np.zeros([nr_word_vecs, self.__dim], dtype=int)
+
+        for index, (word, vector) in enumerate(self.__cv.items()):
+            self.__index_to_word[index] = word
+            all_cvs[index] = vector
+
+        return all_cvs
+
+    def get_query_vecs(self, words):
+        query_vecs = np.zeros([len(words), self.__dim], dtype=int)
+        for index, word in enumerate(words):
+            query_vecs[index] = self.__cv[word]
+
+        return query_vecs
 
 
     ##
