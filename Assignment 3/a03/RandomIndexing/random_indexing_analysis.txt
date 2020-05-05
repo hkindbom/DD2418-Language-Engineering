@@ -1,0 +1,169 @@
+Experimenting by changing various hyper-parameters of the Random Indexing algorithm
+
+What similarity metrics can you use in your algorithm?
+There are many different similarity metrics to use both some are:
+- Cosine similarity (measures angle between vectors)
+- Euclidian (lenght of vector from one to the other)
+- other used in sklearn https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.DistanceMetric.html
+
+
+Which one would you prefer to use? Why?
+Which one is better depends on the data. Cosine is when the magnitude of the vectors doesnt matter. It is
+thus preferable in this problem since if "Harry wants to" exists 10 times and "Harry likes to" exists 2 times
+in the corpus, the contexts vectors for "wants" and "likes" would differ much in length but not in direction.
+The cosine metric allows them to be seen as similar, but not the euclidian.
+
+Tests
+
+1. (Default)
+Dim of the vectors = 2000
+non-zero elements = 100
+right window size = 3
+left window size = 3
+
+Neighbors for Harry: [('Harry', 0.0), ('Hagrid', 0.062), ('Snape', 0.074), ('Dumbledore', 0.081), ('Sirius', 0.082)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('Slytherin', 0.099), ('house', 0.133), ('school', 0.137), ('library', 0.15)]
+Neighbors for chair: [('chair', 0.0), ('seat', 0.063), ('cauldron', 0.122), ('hand', 0.125), ('bag', 0.129)]
+Neighbors for wand: [('wand', 0.0), ('head', 0.065), ('hand', 0.073), ('eyes', 0.088), ('fingers', 0.09)]
+Neighbors for good: [('good', 0.0), ('such', 0.131), ('nice', 0.138), ('bad', 0.14), ('long', 0.141)]
+Neighbors for enter: [('enter', 0.0), ('leave', 0.121), ('take', 0.131), ('break', 0.14), ('use', 0.14)]
+Neighbors for on: [('on', 0.0), ('in', 0.032), ('from', 0.034), ('into', 0.041), ('through', 0.047)]
+Neighbors for school: [('school', 0.0), ('house', 0.062), ('castle', 0.077), ('point', 0.081), ('place', 0.088)]
+
+2.
+Dim of the vectors = 10
+non-zero elements = 8
+right window size = 3
+left window size = 3
+
+Neighbors for Harry: [('Harry', 0.0), ('Slughorn', 0.014), ('Dumbledore', 0.018), ('Hagrid', 0.024), ('blood', 0.028)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('its', 0.015), ('bestlooking', 0.017), ('an', 0.03), ('YouKnowWho', 0.031)]
+Neighbors for chair: [('chair', 0.0), ('pleasure', 0.004), ('brilliance', 0.015), ('life', 0.017), ('cupboard', 0.018)]
+Neighbors for wand: [('wand', 0.0), ('nose', 0.013), ('head', 0.014), ('reflection', 0.018), ('hand', 0.019)]
+Neighbors for good: [('good', 0.0), ('treat', 0.029), ('big', 0.041), ('corpse', 0.044), ('single', 0.045)]
+Neighbors for enter: [('enter', 0.0), ('temptation', 0.034), ('cope', 0.037), ('entrance', 0.04), ('Riddles', 0.047)]
+Neighbors for on: [('on', 0.0), ('in', 0.005), ('through', 0.006), ('into', 0.007), ('castle', 0.009)]
+Neighbors for school: [('school', 0.0), ('Now', 0.015), ('cat', 0.017), ('boy', 0.021), ('with', 0.021)]
+
+Comment: Faster algorithm but slightly more unrelated neighbours than in 1. e.g. see school or Gryffindor
+
+3.
+Dim of the vectors = 10
+non-zero elements = 8
+right window size = 1
+left window size = 1
+
+Neighbors for Harry: [('Harry', 0.0), ('Hermione', 0.04), ('Doge', 0.044), ('Luna', 0.052), ('Neville', 0.053)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('gleefully', 0.036), ('Getting', 0.036), ('othersll', 0.041), ('openin', 0.041)]
+Neighbors for chair: [('chair', 0.0), ('whipping', 0.042), ('voice', 0.044), ('label', 0.046), ('retelling', 0.048)]
+Neighbors for wand: [('wand', 0.0), ('senses', 0.015), ('ears', 0.02), ('hand', 0.02), ('nose', 0.025)]
+Neighbors for good: [('good', 0.0), ('nightmare', 0.03), ('pet', 0.031), ('century', 0.04), ('Squib', 0.042)]
+Neighbors for enter: [('enter', 0.0), ('retrieve', 0.016), ('accept', 0.02), ('reform', 0.022), ('ability', 0.024)]
+Neighbors for on: [('on', 0.0), ('test', 0.025), ('under', 0.027), ('seventh', 0.033), ('scanning', 0.036)]
+Neighbors for school: [('school', 0.0), ('house', 0.021), ('pantry', 0.028), ('pavement', 0.039), ('headmaster', 0.04)]
+
+Comment: slighlty faster than 2 but less reasonable neighbours since some of the context is missed with only
+1 word window size
+
+4.
+Dim of the vectors = 10
+non-zero elements = 8
+right window size = 6
+left window size = 6
+
+Neighbors for Harry: [('Harry', 0.0), ('talented', 0.011), ('Scabbers', 0.012), ('theyd', 0.012), ('always', 0.013)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('revealed', 0.017), ('filled', 0.017), ('carefully', 0.018), ('on', 0.025)]
+Neighbors for chair: [('chair', 0.0), ('breezy', 0.032), ('wiped', 0.04), ('bangs', 0.042), ('oncehandsome', 0.044)]
+Neighbors for wand: [('wand', 0.0), ('greeting', 0.047), ('rat', 0.047), ('fasten', 0.05), ('pillow', 0.055)]
+Neighbors for good: [('good', 0.0), ('Hagrid', 0.017), ('Percy', 0.018), ('Seamuss', 0.02), ('young', 0.021)]
+Neighbors for enter: [('enter', 0.0), ('evening', 0.026), ('beauty', 0.038), ('break', 0.038), ('afternoon', 0.038)]
+Neighbors for on: [('on', 0.0), ('one', 0.014), ('lay', 0.017), ('from', 0.017), ('carefully', 0.018)]
+Neighbors for school: [('school', 0.0), ('Slowly', 0.016), ('spread', 0.023), ('house', 0.025), ('from', 0.027)]
+
+Comment: Very unrelated neighbours compared to all others. Because context window is too large and
+out of context words are seen as in context. There is a high variation of words far away from a focus word
+and they dont determine the meaning of the focus word.
+
+5.
+Dim of the vectors = 2000
+non-zero elements = 1000
+right window size = 3
+left window size = 3
+
+Neighbors for Harry: [('Harry', 0.0), ('Hagrid', 0.088), ('Percy', 0.097), ('Neville', 0.1), ('she', 0.113)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('Slytherin', 0.086), ('house', 0.103), ('room', 0.128), ('fire', 0.13)]
+Neighbors for chair: [('chair', 0.0), ('seat', 0.069), ('bag', 0.123), ('cauldron', 0.127), ('corner', 0.139)]
+Neighbors for wand: [('wand', 0.0), ('head', 0.058), ('hand', 0.068), ('fingers', 0.078), ('nose', 0.084)]
+Neighbors for good: [('good', 0.0), ('nice', 0.128), ('different', 0.138), ('little', 0.139), ('very', 0.141)]
+Neighbors for enter: [('enter', 0.0), ('take', 0.127), ('break', 0.129), ('use', 0.134), ('leave', 0.134)]
+Neighbors for on: [('on', 0.0), ('from', 0.029), ('in', 0.031), ('into', 0.035), ('over', 0.043)]
+Neighbors for school: [('school', 0.0), ('castle', 0.067), ('way', 0.074), ('class', 0.075), ('dementors', 0.076)]
+
+Comment: slighlty more unrelated neihbours than in 1, why?
+
+6.
+Dim of the vectors = 2000
+non-zero elements = 100
+right window size = 1
+left window size = 3
+
+Neighbors for Harry: [('Harry', 0.0), ('Hagrid', 0.056), ('Dumbledore', 0.061), ('Percy', 0.079), ('Snape', 0.08)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('Slytherin', 0.11), ('house', 0.129), ('school', 0.132), ('library', 0.145)]
+Neighbors for chair: [('chair', 0.0), ('seat', 0.068), ('cauldron', 0.133), ('cupboard', 0.146), ('bag', 0.146)]
+Neighbors for wand: [('wand', 0.0), ('head', 0.073), ('eyes', 0.095), ('nose', 0.096), ('hand', 0.097)]
+Neighbors for good: [('good', 0.0), ('such', 0.111), ('different', 0.14), ('long', 0.141), ('great', 0.142)]
+Neighbors for enter: [('enter', 0.0), ('leave', 0.085), ('win', 0.112), ('break', 0.117), ('take', 0.118)]
+Neighbors for on: [('on', 0.0), ('in', 0.029), ('into', 0.03), ('through', 0.034), ('from', 0.038)]
+Neighbors for school: [('school', 0.0), ('house', 0.058), ('castle', 0.062), ('Ministry', 0.072), ('Burrow', 0.076)]
+
+Comment: Hard to tell difference between this and 1. Indicates that words after the focus word might
+not be very informative about the focus word's context. BUT see 7
+
+7.
+Dim of the vectors = 2000
+non-zero elements = 100
+right window size = 3
+left window size = 1
+
+Neighbors for Harry: [('Harry', 0.0), ('Snape', 0.079), ('Hagrid', 0.081), ('Hermione', 0.081), ('Dumbledore', 0.086)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('Slytherin', 0.091), ('Ravenclaw', 0.149), ('school', 0.167), ('water', 0.169)]
+Neighbors for chair: [('chair', 0.0), ('seat', 0.056), ('broom', 0.087), ('desk', 0.108), ('hand', 0.113)]
+Neighbors for wand: [('wand', 0.0), ('head', 0.031), ('shoulder', 0.048), ('chest', 0.048), ('feet', 0.055)]
+Neighbors for good: [('good', 0.0), ('nice', 0.165), ('bad', 0.172), ('like', 0.179), ('long', 0.181)]
+Neighbors for enter: [('enter', 0.0), ('leave', 0.09), ('retrieve', 0.101), ('returned', 0.107), ('avoid', 0.108)]
+Neighbors for on: [('on', 0.0), ('from', 0.047), ('into', 0.053), ('in', 0.053), ('through', 0.06)]
+Neighbors for school: [('school', 0.0), ('house', 0.054), ('fire', 0.057), ('class', 0.058), ('floor', 0.06)]
+
+Comment: Hard to tell difference between this and 1. Since similar result with 6, we can conclude that
+its quite good as long as we have words either before or after. But would say 1 is slighlt better
+than both 6 and 7.
+
+8.
+Dim of the vectors = 2000
+non-zero elements = 100
+right window size = 10
+left window size = 10
+
+Neighbors for Harry: [('Harry', 0.0), ('now', 0.032), ('Snape', 0.034), ('to', 0.034), ('up', 0.035)]
+Neighbors for Gryffindor: [('Gryffindor', 0.0), ('Slytherin', 0.04), ('house', 0.043), ('way', 0.051), ('by', 0.051)]
+Neighbors for chair: [('chair', 0.0), ('seat', 0.037), ('hand', 0.046), ('dropped', 0.047), ('desk', 0.051)]
+Neighbors for wand: [('wand', 0.0), ('hand', 0.023), ('head', 0.026), ('eyes', 0.037), ('face', 0.038)]
+Neighbors for good: [('good', 0.0), ('like', 0.046), ('very', 0.053), ('big', 0.058), ('just', 0.063)]
+Neighbors for enter: [('enter', 0.0), ('take', 0.079), ('leave', 0.08), ('break', 0.091), ('enough', 0.094)]
+Neighbors for on: [('on', 0.0), ('in', 0.007), ('from', 0.008), ('over', 0.011), ('and', 0.012)]
+Neighbors for school: [('school', 0.0), ('house', 0.028), ('place', 0.03), ('last', 0.032), ('first', 0.032)]
+
+Comment: Similar result as in nr 4. see comment there
+
+
+CONCLUSION
+Too large window size will result in too high variation in words on the ends (bad) and too small window
+will result in that we miss important context words further away. Decreasing left or right window will
+not change result so much.
+
+Shorter vector size (100) yielded worse KNN, since not as much information can be stored. Probably too small for
+our data size. Cannot capture the variations.
+
+
+
+
