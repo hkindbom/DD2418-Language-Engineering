@@ -196,6 +196,11 @@ class RandomIndexing(object):
                 context_words = left_words + right_words
                 self.upd_word_vector(focus_word, context_words)
 
+        # Testing
+        print('Vector for "needed" is ', self.get_word_vector('needed'))
+        print('Vector for "blablabla" is ', self.get_word_vector('blablabla'))
+
+
     def get_right_words(self, word_idx, word_list):
         words_after = len(word_list) - 1 - word_idx
         if words_after <= self.__rws:
