@@ -41,7 +41,7 @@ class Word2Vec(object):
         self.__nsample = nsample
         self.__epochs = epochs
         self.__nbrs = None
-        self.__use_corrected = use_corrected
+        self.__use_corrected = use_corrected # False => use "usual" unigram distribution
         self.__use_lr_scheduling = use_lr_scheduling
         self.__unigram_prob = {}
         self.__corr_unigram_prob = {}
@@ -51,6 +51,12 @@ class Word2Vec(object):
         self.__unigram_dist_probs = []
         self.__corr_unigram_dist_words = []
         self.__corr_unigram_dist_probs = []
+        self.__weight_init_uniform = True  # False => normal distribution
+        self.__normal_mu = 0
+        self.__normal_sigma = 2
+        self.__processed_words = 0
+        self.__nn_model = None
+        self.__k = 5
 
 
     def init_params(self, W, w2i, i2w):
@@ -211,10 +217,13 @@ class Word2Vec(object):
         # REPLACE WITH YOUR CODE
         #
         found_replicate = True
-
         # Resample without replacement as long as focus/context word in negative samples
         while found_replicate:
-            negative_samples = np.random.choice(self.__unigram_dist_words, number, replace=False, p = self.__unigram_dist_probs).tolist()
+            if self.__use_corrected:
+                negative_samples = np.random.choice(self.__corr_unigram_dist_words, number, replace=False, p = self.__corr_unigram_dist_probs).tolist()
+            else:
+                negative_samples = np.random.choice(self.__unigram_dist_words, number, replace=False, p = self.__unigram_dist_probs).tolist()
+
             if self.__i2w[xb] not in negative_samples and self.__i2w[pos] not in negative_samples:
                 found_replicate = False
 
@@ -237,10 +246,13 @@ class Word2Vec(object):
         # Convert dicts of unigram probs to lists enabling np.random.choice
         self.build_dist_lists()
 
-        # REPLACE WITH YOUR RANDOM INITIALIZATION
-        self.__W = np.zeros((self.__V, self.__H)) # word vecs?
-        self.__U = np.zeros((self.__V, self.__H)) # context vecs?
-        negative_samples_ratio = 5
+        # RANDOM INITIALIZATION OF WORD VECTORS
+        if self.__weight_init_uniform:
+            self.__W = np.random.rand(self.__V, self.__H)
+        else:
+            self.__W = np.random.normal(self.__normal_mu, self.__normal_sigma, (self.__V, self.__H))
+
+        # self.__U = np.zeros((self.__V, self.__H)) # context vecs?
 
         for ep in range(self.__epochs):
             for i in tqdm(range(N)):
@@ -251,13 +263,75 @@ class Word2Vec(object):
                 focus_word_idx = self.__w2i[focus_word]
                 pos_sample_indices = t[i]
                 pos_samples = self.indices_to_words(pos_sample_indices)
-                neg_samples = self.get_neg_samples(negative_samples_ratio, focus_word_idx, pos_sample_indices)
-                
+                neg_samples = self.get_neg_samples(focus_word_idx, pos_sample_indices)
 
-    def get_neg_samples(self, negative_samples_ratio, focus_word_idx, pos_sample_indices):
+                self.gradient_descent(focus_word_idx, pos_samples, neg_samples)
+
+                self.__processed_words += 1
+
+            print('Epoch ', ep, ' finished')
+
+    def gradient_descent(self, focus_word_idx, pos_samples, neg_samples):
+
+        focus_word_gradient = self.gradient_wrt_focus_vec(focus_word_idx, pos_samples, neg_samples)
+        neg_samples_gradients_dict = self.gradients_wrt_neg_vec(focus_word_idx, neg_samples)
+        pos_samples_gradients_dict = self.gradients_wrt_pos_vec(focus_word_idx, pos_samples)
+
+        self.__W[focus_word_idx] -= self.__lr * focus_word_gradient
+
+        self.upd_sample_vecs(neg_samples_gradients_dict)
+        self.upd_sample_vecs(pos_samples_gradients_dict)
+
+        self.upd_learning_rate()
+
+    def upd_learning_rate(self):
+        if self.__lr < self.__init_lr * 0.0001:
+            self.__lr = self.__init_lr * 0.0001
+            return
+        self.__lr = self.__init_lr * (1 - self.__processed_words / (self.__epochs * self.__V + 1))
+
+
+    def upd_sample_vecs(self, gradients):
+
+        for word_idx, gradient in gradients.items():
+            self.__W[word_idx] -= self.__lr * gradient
+
+    def gradient_wrt_focus_vec(self, focus_word_idx, pos_samples, neg_samples):
+        focus_gradient = np.zeros(self.__H)
+        focus_vec = self.__W[focus_word_idx]
+
+        for pos_sample in pos_samples:
+            pos_vec = self.__W[self.__w2i[pos_sample]]
+            focus_gradient += pos_vec * (self.sigmoid(np.dot(pos_vec, focus_vec)) - 1)
+
+        for neg_sample in neg_samples:
+            neg_vec = self.__W[self.__w2i[neg_sample]]
+            focus_gradient += neg_vec * self.sigmoid(np.dot(neg_vec, focus_vec))
+
+        return focus_gradient
+
+    def gradients_wrt_neg_vec(self, focus_word_idx, neg_samples):
+        neg_samples_gradients_dict = {}
+        focus_vec = self.__W[focus_word_idx]
+        for neg_sample in neg_samples:
+            neg_vec = self.__W[self.__w2i[neg_sample]]
+            neg_samples_gradients_dict[self.__w2i[neg_sample]] = focus_vec * self.sigmoid(np.dot(neg_vec, focus_vec))
+
+        return neg_samples_gradients_dict
+
+    def gradients_wrt_pos_vec(self, focus_word_idx, pos_samples):
+        pos_samples_gradients_dict = {}
+        focus_vec = self.__W[focus_word_idx]
+        for pos_sample in pos_samples:
+            pos_vec = self.__W[self.__w2i[pos_sample]]
+            pos_samples_gradients_dict[self.__w2i[pos_sample]] = focus_vec * (self.sigmoid(np.dot(pos_vec, focus_vec)) - 1)
+
+        return pos_samples_gradients_dict
+
+    def get_neg_samples(self, focus_word_idx, pos_sample_indices):
         neg_samples = []
         for pos_sample_idx in pos_sample_indices:
-            neg_samples.extend(self.negative_sampling(negative_samples_ratio, focus_word_idx, pos_sample_idx))
+            neg_samples.extend(self.negative_sampling(self.__nsample, focus_word_idx, pos_sample_idx))
         return neg_samples
 
     def indices_to_words(self, indices):
@@ -265,8 +339,6 @@ class Word2Vec(object):
         for idx in indices:
             words.append(self.__i2w[idx])
         return words
-
-
 
     def find_nearest(self, words, metric):
         """
@@ -297,7 +369,38 @@ class Word2Vec(object):
         #
         # REPLACE WITH YOUR CODE
         #
-        return []
+        # Create nearest neighbour model if not exists already
+        if self.__nn_model is None:
+            # look on parameters
+            self.__nn_model = NearestNeighbors(self.__k, metric=metric)
+            self.__nn_model.fit(self.__W)
+
+        query_vecs = self.get_query_vecs(words)
+
+        distances, word_indices = self.__nn_model.kneighbors(query_vecs)
+        formated_nn = self.format_nearest_neighbours(distances, word_indices)
+
+        return formated_nn
+
+    def get_query_vecs(self, words):
+        query_vecs = np.zeros([len(words), self.__H])
+        for index, word in enumerate(words):
+            query_vecs[index] = self.__W[self.__w2i[word]]
+
+        return query_vecs
+
+    def format_nearest_neighbours(self, distances, word_indices):
+        formated_nn = []
+        for distance_list, word_index_list in zip(distances, word_indices):
+            nn_data = []
+            for distance, word_index in zip(distance_list, word_index_list):
+                nn_word = self.__i2w[word_index]
+                nn_data.append((nn_word, round(distance, 3)))
+            # Sort nearest neighbour list in descending similarity order
+            nn_data.sort(key=lambda x: x[1])
+            formated_nn.append(nn_data)
+
+        return formated_nn
 
 
     def write_to_file(self):
@@ -389,7 +492,7 @@ if __name__ == '__main__':
     else:
         w2v = Word2Vec(
             args.text.split(','), dimension=args.dimension, window_size=args.window_size,
-            nsample=args.negative_sample, learning_rate=args.learning_rate, epochs=args.epochs,
+            nsample=args.negative_sample, learning_rate=args.learning_rate, epochs=int(args.epochs),
             use_corrected=args.use_corrected, use_lr_scheduling=args.use_learning_rate_scheduling
         )
         w2v.train_and_persist()
