@@ -82,7 +82,7 @@ class Word2Vec(object):
         #
         # REPLACE WITH YOUR CODE HERE
         #
-        return re.sub(r'\d|[^\w\s]', '', line).split()
+        return re.sub(r'\d|[^\w\s]', '', line).lower().split()
 
 
     def text_gen(self):
@@ -290,7 +290,6 @@ class Word2Vec(object):
             return
         self.__lr = self.__init_lr * (1 - self.__processed_words / (self.__epochs * self.__V + 1))
 
-
     def upd_sample_vecs(self, gradients):
 
         for word_idx, gradient in gradients.items():
@@ -385,7 +384,7 @@ class Word2Vec(object):
     def get_query_vecs(self, words):
         query_vecs = np.zeros([len(words), self.__H])
         for index, word in enumerate(words):
-            query_vecs[index] = self.__W[self.__w2i[word]]
+            query_vecs[index] = self.__W[self.__w2i[word.lower()]]
 
         return query_vecs
 
@@ -415,7 +414,6 @@ class Word2Vec(object):
                     f.write(str(w) + " " + " ".join(map(lambda x: "{0:.6f}".format(x), W[i,:])) + "\n")
         except:
             print("Error: failing to write model to the file")
-
 
     @classmethod
     def load(cls, fname):
