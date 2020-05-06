@@ -249,8 +249,12 @@ class Word2Vec(object):
         # RANDOM INITIALIZATION OF WORD VECTORS
         if self.__weight_init_uniform:
             self.__W = np.random.rand(self.__V, self.__H)
+            self.__U = np.random.rand(self.__V, self.__H)
+
         else:
             self.__W = np.random.normal(self.__normal_mu, self.__normal_sigma, (self.__V, self.__H))
+            self.__U = np.random.normal(self.__normal_mu, self.__normal_sigma, (self.__V, self.__H))
+
 
         # self.__U = np.zeros((self.__V, self.__H)) # context vecs?
 
@@ -293,18 +297,18 @@ class Word2Vec(object):
     def upd_sample_vecs(self, gradients):
 
         for word_idx, gradient in gradients.items():
-            self.__W[word_idx] -= self.__lr * gradient
+            self.__U[word_idx] -= self.__lr * gradient
 
     def gradient_wrt_focus_vec(self, focus_word_idx, pos_samples, neg_samples):
         focus_gradient = np.zeros(self.__H)
         focus_vec = self.__W[focus_word_idx]
 
         for pos_sample in pos_samples:
-            pos_vec = self.__W[self.__w2i[pos_sample]]
+            pos_vec = self.__U[self.__w2i[pos_sample]]
             focus_gradient += pos_vec * (self.sigmoid(np.dot(pos_vec, focus_vec)) - 1)
 
         for neg_sample in neg_samples:
-            neg_vec = self.__W[self.__w2i[neg_sample]]
+            neg_vec = self.__U[self.__w2i[neg_sample]]
             focus_gradient += neg_vec * self.sigmoid(np.dot(neg_vec, focus_vec))
 
         return focus_gradient
@@ -313,7 +317,7 @@ class Word2Vec(object):
         neg_samples_gradients_dict = {}
         focus_vec = self.__W[focus_word_idx]
         for neg_sample in neg_samples:
-            neg_vec = self.__W[self.__w2i[neg_sample]]
+            neg_vec = self.__U[self.__w2i[neg_sample]]
             neg_samples_gradients_dict[self.__w2i[neg_sample]] = focus_vec * self.sigmoid(np.dot(neg_vec, focus_vec))
 
         return neg_samples_gradients_dict
@@ -322,7 +326,7 @@ class Word2Vec(object):
         pos_samples_gradients_dict = {}
         focus_vec = self.__W[focus_word_idx]
         for pos_sample in pos_samples:
-            pos_vec = self.__W[self.__w2i[pos_sample]]
+            pos_vec = self.__U[self.__w2i[pos_sample]]
             pos_samples_gradients_dict[self.__w2i[pos_sample]] = focus_vec * (self.sigmoid(np.dot(pos_vec, focus_vec)) - 1)
 
         return pos_samples_gradients_dict
