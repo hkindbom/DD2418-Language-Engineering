@@ -4,6 +4,7 @@ import argparse
 import string
 from collections import defaultdict
 import numpy as np
+import re
 from sklearn.neighbors import NearestNeighbors
 
 from tqdm import tqdm
@@ -42,6 +43,10 @@ class Word2Vec(object):
         self.__nbrs = None
         self.__use_corrected = use_corrected
         self.__use_lr_scheduling = use_lr_scheduling
+        self.__unigram_prob = {}
+        self.__corr_unigram_prob = {}
+        self.__unigram_count = {}
+        self.__V = 0
 
 
     def init_params(self, W, w2i, i2w):
@@ -67,7 +72,7 @@ class Word2Vec(object):
         #
         # REPLACE WITH YOUR CODE HERE
         #
-        return []
+        return re.sub(r'\d|[^\w\s]', '', line).split()
 
 
     def text_gen(self):
@@ -100,8 +105,24 @@ class Word2Vec(object):
         """
         #
         # REPLACE WITH YOUR CODE
-        # 
-        return []
+        #
+        context = []
+
+        nr_words_before = i
+        nr_words_after = len(sent) - 1 - i
+
+        nr_right_context_words = min(nr_words_after, self.__rws)
+        nr_left_context_words = min(nr_words_before, self.__lws)
+
+        # Append right context indices
+        for right_pos in range(1, nr_right_context_words + 1):
+            context.append(i + right_pos)
+
+        # Append left context indices
+        for left_pos in range(1, nr_left_context_words + 1):
+            context.append(i - left_pos)
+
+        return context
 
 
     def skipgram_data(self):
@@ -116,9 +137,51 @@ class Word2Vec(object):
         """
         #
         # REPLACE WITH YOUR CODE
-        # 
-        return [], []
+        #
+        self.__w2i = {}
+        self.__i2w = []
 
+        focus_words = []
+        context_words = []
+
+        # Loop through all lines of word lists in all textfiles
+        line_gen = self.text_gen()
+        for word_list in line_gen:
+            self.build_word_idx_maps(word_list)
+            for focus_idx, focus_word in enumerate(word_list):
+                focus_words.append(focus_word)
+                context_words.append(self.get_context(word_list, focus_idx))
+
+        self.calc_unigram_dist()
+        self.calc_corr_unigram_dist()
+
+        return focus_words, context_words
+
+    def build_word_idx_maps(self, word_list):
+        for word in word_list:
+            self.__V += 1
+            if word not in self.__unigram_count:
+                self.__unigram_count[word] = 1
+                self.__w2i[word] = len(self.__i2w)
+                self.__i2w.append(word)
+            else:
+                self.__unigram_count[word] += 1
+
+    def calc_unigram_dist(self):
+        for unique_word in self.__unigram_count:
+            self.__unigram_prob[unique_word] = self.__unigram_count[unique_word] / self.__V
+
+    def calc_corr_unigram_dist(self):
+        power_sum = self.calc_power_sum()
+        for unique_word in self.__unigram_count:
+            unigram_prob = self.__unigram_prob[unique_word]
+            self.__corr_unigram_prob[unique_word] = unigram_prob ** (3 / 4) / power_sum
+
+    def calc_power_sum(self):
+        power_sum = 0
+        for unique_word in self.__unigram_count:
+            power_sum += self.__unigram_prob[unique_word] ** (3 / 4)
+        return power_sum
 
     def sigmoid(self, x):
         """
@@ -206,7 +269,7 @@ class Word2Vec(object):
                 W = self.__W
                 f.write("{} {}\n".format(self.__V, self.__H))
                 for i, w in enumerate(self.__i2w):
-                    f.write(w + " " + " ".join(map(lambda x: "{0:.6f}".format(x), W[i,:])) + "\n")
+                    f.write(str(w) + " " + " ".join(map(lambda x: "{0:.6f}".format(x), W[i,:])) + "\n")
         except:
             print("Error: failing to write model to the file")
 
