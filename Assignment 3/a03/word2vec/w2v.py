@@ -47,6 +47,10 @@ class Word2Vec(object):
         self.__corr_unigram_prob = {}
         self.__unigram_count = {}
         self.__V = 0
+        self.__unigram_dist_words = []
+        self.__unigram_dist_probs = []
+        self.__corr_unigram_dist_words = []
+        self.__corr_unigram_dist_probs = []
 
 
     def init_params(self, W, w2i, i2w):
@@ -115,12 +119,13 @@ class Word2Vec(object):
         nr_left_context_words = min(nr_words_before, self.__lws)
 
         # Append right context indices
-        for right_pos in range(1, nr_right_context_words + 1):
-            context.append(i + right_pos)
+        for right_word in sent[i + 1: i + nr_right_context_words + 1]:
+            context.append(self.__w2i[right_word])
 
         # Append left context indices
         for left_pos in range(1, nr_left_context_words + 1):
-            context.append(i - left_pos)
+            left_word = sent[i - left_pos]
+            context.append(self.__w2i[left_word])
 
         return context
 
@@ -205,8 +210,21 @@ class Word2Vec(object):
         #
         # REPLACE WITH YOUR CODE
         #
-        return []
+        found_replicate = True
 
+        # Resample without replacement as long as focus/context word in negative samples
+        while found_replicate:
+            negative_samples = np.random.choice(self.__unigram_dist_words, number, replace=False, p = self.__unigram_dist_probs).tolist()
+            if self.__i2w[xb] not in negative_samples and self.__i2w[pos] not in negative_samples:
+                found_replicate = False
+
+        return negative_samples
+
+    def build_dist_lists(self):
+        self.__unigram_dist_words = list(self.__unigram_prob.keys())
+        self.__unigram_dist_probs = list(self.__unigram_prob.values())
+        self.__corr_unigram_dist_words = list(self.__corr_unigram_prob.keys())
+        self.__corr_unigram_dist_probs = list(self.__corr_unigram_prob.values())
 
     def train(self):
         """
@@ -216,16 +234,38 @@ class Word2Vec(object):
         N = len(x)
         print("Dataset contains {} datapoints".format(N))
 
+        # Convert dicts of unigram probs to lists enabling np.random.choice
+        self.build_dist_lists()
+
         # REPLACE WITH YOUR RANDOM INITIALIZATION
-        self.__W = np.zeros((100, 50))
-        self.__U = np.zeros((100, 50))
+        self.__W = np.zeros((self.__V, self.__H)) # word vecs?
+        self.__U = np.zeros((self.__V, self.__H)) # context vecs?
+        negative_samples_ratio = 5
 
         for ep in range(self.__epochs):
             for i in tqdm(range(N)):
                 #
                 # YOUR CODE HERE 
                 #
-                pass
+                focus_word = x[i]
+                focus_word_idx = self.__w2i[focus_word]
+                pos_sample_indices = t[i]
+                pos_samples = self.indices_to_words(pos_sample_indices)
+                neg_samples = self.get_neg_samples(negative_samples_ratio, focus_word_idx, pos_sample_indices)
+                
+
+    def get_neg_samples(self, negative_samples_ratio, focus_word_idx, pos_sample_indices):
+        neg_samples = []
+        for pos_sample_idx in pos_sample_indices:
+            neg_samples.extend(self.negative_sampling(negative_samples_ratio, focus_word_idx, pos_sample_idx))
+        return neg_samples
+
+    def indices_to_words(self, indices):
+        words = []
+        for idx in indices:
+            words.append(self.__i2w[idx])
+        return words
+
 
 
     def find_nearest(self, words, metric):
