@@ -57,20 +57,26 @@ class VecPlotter(object):
         self.__vec_source = vec_file
         self.__vector_type = vector_type
         self.__decomposition = decomposition
-        print(self.__vec_source)
-        print(self.__vector_type)
-        print(self.__decomposition)
 
     def load_and_plot_vectors(self):
         if self.__vector_type == 'w2v':
-            w2v = Word2Vec.load(self.__vec_source)
-            word_vectors = w2v.get_word_vectors()
-            text = w2v.get_words_for_wvs()
+            print('Using w2v vectors')
+            word_model = Word2Vec.load(self.__vec_source)
+            word_vectors = word_model.get_word_vectors()
+
+        if self.__vector_type == 'ri':
+            print('Using ri vectors')
+            word_model = RandomIndexing.load(self.__vec_source)
+            word_vectors = word_model.get_all_cvs()
+
+        text = word_model.get_words_for_wvs()
 
         if self.__decomposition == 'svd':
+            print('running svd')
             dim_reducer = TruncatedSVD(n_components=2)
 
         if self.__decomposition == 'pca':
+            print('running pca')
             dim_reducer = PCA(n_components=2)
 
         reduced_vectors = dim_reducer.fit_transform(word_vectors)

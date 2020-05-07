@@ -313,6 +313,12 @@ class RandomIndexing(object):
 
         return all_cvs
 
+    def get_words_for_wvs(self):
+        words = []
+        for word_index, word_vec in enumerate(self.get_all_cvs()):
+            words.append(self.__index_to_word[word_index])
+        return words
+
     def get_query_vecs(self, words):
         query_vecs = np.zeros([len(words), self.__dim], dtype=int)
         for index, word in enumerate(words):
@@ -405,6 +411,7 @@ class RandomIndexing(object):
     ##
     def train_and_persist(self):
         self.train()
+        self.write_vecs_to_file()
         print("PRESS q FOR EXIT")
         text = input('> ')
         while text != 'q':
@@ -414,6 +421,52 @@ class RandomIndexing(object):
             for w, n in zip(text, neighbors):
                 print("Neighbors for {}: {}".format(w, n))
             text = input('> ')
+
+    def write_vecs_to_file(self):
+        """
+        Write the model to a file `ri.txt`
+        """
+        try:
+            with open("ri.txt", 'w') as f:
+                W = self.get_all_cvs()
+                nr_vecs = W.shape[0]
+                vec_dim = W.shape[1]
+
+                f.write("{} {}\n".format(nr_vecs, vec_dim))
+                for i, w in self.__index_to_word.items():
+                    f.write(str(w) + " " + " ".join(map(lambda x: "{0:.6f}".format(x), W[i,:])) + "\n")
+        except:
+            print("Error: failing to write model to the file")
+
+    @classmethod
+    def load(cls, fname):
+        """
+        Load the ri model from a file `fname`
+        """
+        ri = None
+        try:
+            with open(fname, 'r') as f:
+                V, H = (int(a) for a in next(f).split())
+                ri = cls([], dimension=H)
+
+                temp_vec, i2w = np.zeros(H), []
+                W = {}
+                for i, line in enumerate(f):
+                    parts = line.split()
+                    word = parts[0].strip()
+                    temp_vec = list(map(float, parts[1:]))
+                    W[word] = temp_vec
+                    i2w.append(word)
+
+                ri.init_params(W, i2w, H)
+        except:
+            print("Error: failing to load the model to the file")
+        return ri
+
+    def init_params(self, W, i2w, dim):
+        self.__cv = W
+        self.__index_to_word = i2w
+        self.__dim = dim
 
 
 if __name__ == '__main__':

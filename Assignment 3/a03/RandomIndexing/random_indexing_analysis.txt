@@ -45,7 +45,8 @@ Neighbors for enter: [('enter', 0.0), ('temptation', 0.034), ('cope', 0.037), ('
 Neighbors for on: [('on', 0.0), ('in', 0.005), ('through', 0.006), ('into', 0.007), ('castle', 0.009)]
 Neighbors for school: [('school', 0.0), ('Now', 0.015), ('cat', 0.017), ('boy', 0.021), ('with', 0.021)]
 
-Comment: Faster algorithm but slightly more unrelated neighbours than in 1. e.g. see school or Gryffindor
+Comment: Faster algorithm but slightly more unrelated neighbours than in 1. e.g. see school or Gryffindor. Cant
+store all info in corpus.
 
 3.
 Dim of the vectors = 10
@@ -63,7 +64,7 @@ Neighbors for on: [('on', 0.0), ('test', 0.025), ('under', 0.027), ('seventh', 0
 Neighbors for school: [('school', 0.0), ('house', 0.021), ('pantry', 0.028), ('pavement', 0.039), ('headmaster', 0.04)]
 
 Comment: slighlty faster than 2 but less reasonable neighbours since some of the context is missed with only
-1 word window size
+1 word window size. More like part of speech
 
 4.
 Dim of the vectors = 10
@@ -99,7 +100,7 @@ Neighbors for enter: [('enter', 0.0), ('take', 0.127), ('break', 0.129), ('use',
 Neighbors for on: [('on', 0.0), ('from', 0.029), ('in', 0.031), ('into', 0.035), ('over', 0.043)]
 Neighbors for school: [('school', 0.0), ('castle', 0.067), ('way', 0.074), ('class', 0.075), ('dementors', 0.076)]
 
-Comment: slighlty more unrelated neihbours than in 1, why?
+Comment: slighlty more unrelated neihbours than in 1. Each datapoint has too much weight.
 
 6.
 Dim of the vectors = 2000
@@ -135,7 +136,7 @@ Neighbors for on: [('on', 0.0), ('from', 0.047), ('into', 0.053), ('in', 0.053),
 Neighbors for school: [('school', 0.0), ('house', 0.054), ('fire', 0.057), ('class', 0.058), ('floor', 0.06)]
 
 Comment: Hard to tell difference between this and 1. Since similar result with 6, we can conclude that
-its quite good as long as we have words either before or after. But would say 1 is slighlt better
+its quite good as long as we have words either before or after. But would say 1 is slightly better
 than both 6 and 7.
 
 8.

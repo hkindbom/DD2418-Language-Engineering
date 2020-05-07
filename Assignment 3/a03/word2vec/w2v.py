@@ -54,7 +54,7 @@ class Word2Vec(object):
         self.__corr_unigram_dist_probs = []
         self.__weight_init_uniform = True  # False => normal distribution
         self.__normal_mu = 0
-        self.__normal_sigma = 2
+        self.__normal_sigma = 0.2
         self.__processed_words = 0
         self.__nn_model = None
         self.__k = 5
