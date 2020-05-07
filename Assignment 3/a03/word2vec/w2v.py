@@ -52,7 +52,7 @@ class Word2Vec(object):
         self.__unigram_dist_probs = []
         self.__corr_unigram_dist_words = []
         self.__corr_unigram_dist_probs = []
-        self.__weight_init_uniform = True  # False => normal distribution
+        self.__weight_init_uniform = False  # False => normal distribution
         self.__normal_mu = 0
         self.__normal_sigma = 0.2
         self.__processed_words = 0
@@ -288,6 +288,8 @@ class Word2Vec(object):
         self.upd_learning_rate()
 
     def upd_learning_rate(self):
+        self.__lr = self.__init_lr
+        return
         if self.__lr < self.__init_lr * 0.0001:
             self.__lr = self.__init_lr * 0.0001
             return

@@ -1,0 +1,54 @@
+All with 5 epochs, dim 50, win_size=2 harry_potter_1.txt,
+10 neg per pos sample, init_learning_rate=0.025
+
+Harry Gryffindor chair wand good enter on school
+
+1. uniform vector initialization, changing learning rate, corr_sampling
+Neighbors for Harry: [('harry', 0.0), ('she', 0.088), ('hermione', 0.095), ('ron', 0.096), ('he', 0.1)]
+Neighbors for Gryffindor: [('gryffindor', 0.0), ('common', 0.191), ('house', 0.196), ('room', 0.197), ('died', 0.21)]
+Neighbors for chair: [('chair', 0.0), ('father', 0.221), ('leaky', 0.238), ('then', 0.238), ('arm', 0.239)]
+Neighbors for wand: [('wand', 0.0), ('face', 0.153), ('hand', 0.153), ('nose', 0.167), ('wearing', 0.172)]
+Neighbors for good: [('good', 0.0), ('having', 0.152), ('called', 0.154), ('thats', 0.168), ('well', 0.169)]
+Neighbors for enter: [('enter', 0.0), ('softly', 0.387), ('incredible', 0.412), ('centaurs', 0.419), ('casually', 0.423)]
+Neighbors for on: [('on', 0.0), ('over', 0.203), ('along', 0.212), ('from', 0.224), ('through', 0.231)]
+Neighbors for school: [('school', 0.0), ('end', 0.167), ('dark', 0.178), ('against', 0.181), ('first', 0.182)]
+
+2. normal vector initialization (mu=0, sigma=0.2), changing learning rate, corr_sampling
+Neighbors for Harry: [('harry', 0.0), ('ron', 0.145), ('hermione', 0.158), ('hagrid', 0.192), ('quietly', 0.203)]
+Neighbors for Gryffindor: [('gryffindor', 0.0), ('waiting', 0.231), ('biscuits', 0.235), ('years', 0.237), ('book', 0.239)]
+Neighbors for chair: [('chair', 0.0), ('control', 0.157), ('grabbed', 0.161), ('pushed', 0.165), ('castle', 0.167)]
+Neighbors for wand: [('wand', 0.0), ('hand', 0.201), ('forehead', 0.205), ('throwing', 0.209), ('class', 0.214)]
+Neighbors for good: [('good', 0.0), ('having', 0.165), ('really', 0.201), ('careful', 0.203), ('pleased', 0.209)]
+Neighbors for enter: [('enter', 0.0), ('rain', 0.205), ('every', 0.215), ('exactly', 0.224), ('darkly', 0.226)]
+Neighbors for on: [('on', 0.0), ('jumping', 0.293), ('hopped', 0.304), ('alone', 0.308), ('over', 0.311)]
+Neighbors for school: [('school', 0.0), ('clambered', 0.157), ('doors', 0.161), ('end', 0.163), ('corner', 0.163)]
+
+3. uniform vector initialization, constant learning rate (init), corr_sampling
+Neighbors for Harry: [('harry', 0.0), ('quietly', 0.145), ('hagrid', 0.162), ('sounding', 0.168), ('fang', 0.176)]
+Neighbors for Gryffindor: [('gryffindor', 0.0), ('fifty', 0.201), ('house', 0.206), ('tonight', 0.217), ('youknowwho', 0.225)]
+Neighbors for chair: [('chair', 0.0), ('burst', 0.206), ('run', 0.214), ('turned', 0.22), ('platform', 0.223)]
+Neighbors for wand: [('wand', 0.0), ('broomstick', 0.196), ('ear', 0.215), ('hand', 0.222), ('fingers', 0.227)]
+Neighbors for good: [('good', 0.0), ('normal', 0.206), ('having', 0.238), ('clean', 0.248), ('yeah', 0.248)]
+Neighbors for enter: [('enter', 0.0), ('trick', 0.301), ('happens', 0.345), ('everywhere', 0.35), ('werewolf', 0.357)]
+Neighbors for on: [('on', 0.0), ('over', 0.233), ('onto', 0.238), ('side', 0.241), ('teeth', 0.27)]
+Neighbors for school: [('school', 0.0), ('morning', 0.212), ('gringotts', 0.221), ('place', 0.229), ('story', 0.233)]
+
+4. normal vector initialization (mu=0, sigma=0.2), constant learning rate (init), corr_sampling
+Neighbors for Harry: [('harry', 0.0), ('thanks', 0.195), ('ron', 0.201), ('neville', 0.235), ('sighed', 0.238)]
+Neighbors for Gryffindor: [('gryffindor', 0.0), ('house', 0.244), ('hufflepuff', 0.269), ('letters', 0.286), ('escape', 0.294)]
+Neighbors for chair: [('chair', 0.0), ('crate', 0.163), ('rushed', 0.188), ('sea', 0.2), ('staircase', 0.218)]
+Neighbors for wand: [('wand', 0.0), ('reflection', 0.216), ('envelope', 0.242), ('difficulty', 0.246), ('heel', 0.254)]
+Neighbors for good: [('good', 0.0), ('useful', 0.262), ('nothing', 0.291), ('mistake', 0.301), ('missed', 0.31)]
+Neighbors for enter: [('enter', 0.0), ('cleared', 0.187), ('desks', 0.193), ('afternoons', 0.207), ('pieces', 0.209)]
+Neighbors for on: [('on', 0.0), ('silent', 0.257), ('silvery', 0.284), ('mountain', 0.286), ('scattering', 0.303)]
+Neighbors for school: [('school', 0.0), ('especially', 0.239), ('starts', 0.24), ('dungeons', 0.243), ('transfixed', 0.259)]
+
+5. normal vector initialization (mu=0, sigma=0.2), constant learning rate (init), uniform_sampling
+Neighbors for Harry: [('harry', 0.0), ('she', 0.19), ('ron', 0.197), ('neville', 0.205), ('but', 0.206)]
+Neighbors for Gryffindor: [('gryffindor', 0.0), ('house', 0.255), ('wont', 0.272), ('slytherin', 0.274), ('hams', 0.274)]
+Neighbors for chair: [('chair', 0.0), ('trip', 0.187), ('climbing', 0.197), ('stretched', 0.201), ('anxious', 0.208)]
+Neighbors for wand: [('wand', 0.0), ('robes', 0.21), ('chest', 0.217), ('clasped', 0.222), ('ear', 0.231)]
+Neighbors for good: [('good', 0.0), ('important', 0.208), ('single', 0.213), ('choice', 0.223), ('strange', 0.243)]
+Neighbors for enter: [('enter', 0.0), ('slipping', 0.167), ('nearest', 0.177), ('dreadlocks', 0.179), ('path', 0.179)]
+Neighbors for on: [('on', 0.0), ('alchemy', 0.232), ('harrys', 0.268), ('mmyself', 0.273), ('granite', 0.283)]
+Neighbors for school: [('school', 0.0), ('stonewall', 0.229), ('first', 0.255), ('day', 0.265), ('special', 0.278)]

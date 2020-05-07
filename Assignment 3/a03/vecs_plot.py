@@ -85,8 +85,6 @@ class VecPlotter(object):
         y = reduced_vectors[:, 1]
         draw_interactive(x, y, text)
 
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='embedding visualization toolkit')
     parser.add_argument('file', type=str, help='A textual file containing word vectors')
