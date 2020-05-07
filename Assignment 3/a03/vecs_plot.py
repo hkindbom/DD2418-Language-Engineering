@@ -1,9 +1,9 @@
 import argparse
 import matplotlib.pyplot as plt
 from sklearn.decomposition import TruncatedSVD, PCA
-from word2vec import Word2Vec
-from RandomIndexing import RandomIndexing
-
+from word2vec.w2v import Word2Vec
+from RandomIndexing.random_indexing import RandomIndexing
+import os
 
 def draw_interactive(x, y, text):
     """
@@ -52,16 +52,48 @@ def draw_interactive(x, y, text):
     fig.canvas.mpl_connect("motion_notify_event", hover)
     plt.show()
 
+class VecPlotter(object):
+    def __init__(self, vec_file, vector_type, decomposition):
+        self.__vec_source = vec_file
+        self.__vector_type = vector_type
+        self.__decomposition = decomposition
+        print(self.__vec_source)
+        print(self.__vector_type)
+        print(self.__decomposition)
+
+    def load_and_plot_vectors(self):
+        if self.__vector_type == 'w2v':
+            w2v = Word2Vec.load(self.__vec_source)
+            word_vectors = w2v.get_word_vectors()
+            text = w2v.get_words_for_wvs()
+
+        if self.__decomposition == 'svd':
+            dim_reducer = TruncatedSVD(n_components=2)
+
+        if self.__decomposition == 'pca':
+            dim_reducer = PCA(n_components=2)
+
+        reduced_vectors = dim_reducer.fit_transform(word_vectors)
+
+        x = reduced_vectors[:, 0]
+        y = reduced_vectors[:, 1]
+        draw_interactive(x, y, text)
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='embedding visualization toolkit')
     parser.add_argument('file', type=str, help='A textual file containing word vectors')
-    parser.add_argument('-v', '--vector-type', default='w2v', choices=['w2v', 'ri'])
+    parser.add_argument('-v', '--vector_type', default='w2v', choices=['w2v', 'ri'])
     parser.add_argument('-d', '--decomposition', default='svd', choices=['svd', 'pca'],
                         help='Your favorite decomposition method')
     args = parser.parse_args()
 
-    #
     # YOUR CODE HERE
-    #
+    if os.path.exists(args.file):
+        vec_plotter = VecPlotter(vec_file = args.file, vector_type = args.vector_type,
+                                 decomposition = args.decomposition)
+        vec_plotter.load_and_plot_vectors()
+
+
 

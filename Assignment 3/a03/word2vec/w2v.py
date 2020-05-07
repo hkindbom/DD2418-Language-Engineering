@@ -46,7 +46,8 @@ class Word2Vec(object):
         self.__unigram_prob = {}
         self.__corr_unigram_prob = {}
         self.__unigram_count = {}
-        self.__V = 0
+        self.__V = 0 # Number of unique words in corpus
+        self.__tot_words = 0
         self.__unigram_dist_words = []
         self.__unigram_dist_probs = []
         self.__corr_unigram_dist_words = []
@@ -170,8 +171,9 @@ class Word2Vec(object):
 
     def build_word_idx_maps(self, word_list):
         for word in word_list:
-            self.__V += 1
+            self.__tot_words += 1
             if word not in self.__unigram_count:
+                self.__V += 1
                 self.__unigram_count[word] = 1
                 self.__w2i[word] = len(self.__i2w)
                 self.__i2w.append(word)
@@ -180,7 +182,7 @@ class Word2Vec(object):
 
     def calc_unigram_dist(self):
         for unique_word in self.__unigram_count:
-            self.__unigram_prob[unique_word] = self.__unigram_count[unique_word] / self.__V
+            self.__unigram_prob[unique_word] = self.__unigram_count[unique_word] / self.__tot_words
 
     def calc_corr_unigram_dist(self):
         power_sum = self.calc_power_sum()
@@ -255,9 +257,6 @@ class Word2Vec(object):
             self.__W = np.random.normal(self.__normal_mu, self.__normal_sigma, (self.__V, self.__H))
             self.__U = np.random.normal(self.__normal_mu, self.__normal_sigma, (self.__V, self.__H))
 
-
-        # self.__U = np.zeros((self.__V, self.__H)) # context vecs?
-
         for ep in range(self.__epochs):
             for i in tqdm(range(N)):
                 #
@@ -292,7 +291,7 @@ class Word2Vec(object):
         if self.__lr < self.__init_lr * 0.0001:
             self.__lr = self.__init_lr * 0.0001
             return
-        self.__lr = self.__init_lr * (1 - self.__processed_words / (self.__epochs * self.__V + 1))
+        self.__lr = self.__init_lr * (1 - self.__processed_words / (self.__epochs * self.__tot_words + 1))
 
     def upd_sample_vecs(self, gradients):
 
@@ -443,6 +442,14 @@ class Word2Vec(object):
             print("Error: failing to load the model to the file")
         return w2v
 
+    def get_word_vectors(self):
+        return self.__W
+
+    def get_words_for_wvs(self):
+        words = []
+        for word_index, word_vec in enumerate(self.__W):
+            words.append(self.__i2w[word_index])
+        return words
 
     def interact(self):
         """
