@@ -288,8 +288,6 @@ class Word2Vec(object):
         self.upd_learning_rate()
 
     def upd_learning_rate(self):
-        self.__lr = self.__init_lr
-        return
         if self.__lr < self.__init_lr * 0.0001:
             self.__lr = self.__init_lr * 0.0001
             return

@@ -13,6 +13,8 @@ Neighbors for enter: [('enter', 0.0), ('softly', 0.387), ('incredible', 0.412), 
 Neighbors for on: [('on', 0.0), ('over', 0.203), ('along', 0.212), ('from', 0.224), ('through', 0.231)]
 Neighbors for school: [('school', 0.0), ('end', 0.167), ('dark', 0.178), ('against', 0.181), ('first', 0.182)]
 
+works best. gradually decreasing learning rate to not jump too far out of minima. corr_sampling upsamples unusual words.
+
 2. normal vector initialization (mu=0, sigma=0.2), changing learning rate, corr_sampling
 Neighbors for Harry: [('harry', 0.0), ('ron', 0.145), ('hermione', 0.158), ('hagrid', 0.192), ('quietly', 0.203)]
 Neighbors for Gryffindor: [('gryffindor', 0.0), ('waiting', 0.231), ('biscuits', 0.235), ('years', 0.237), ('book', 0.239)]

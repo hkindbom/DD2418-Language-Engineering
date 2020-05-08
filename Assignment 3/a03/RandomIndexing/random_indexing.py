@@ -117,7 +117,7 @@ class RandomIndexing(object):
         # YOUR CODE HERE
         line_gen = self.text_gen()
 
-        # Loop thorugh all lines of word lists in all textfiles
+        # Loop through all lines of word lists in all textfiles
         for word_list in line_gen:
             self.add_words_to_vocab(word_list)
 
